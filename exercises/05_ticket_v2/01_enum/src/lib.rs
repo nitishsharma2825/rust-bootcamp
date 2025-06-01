@@ -7,15 +7,19 @@
 struct Ticket {
     title: String,
     description: String,
-    status: String,
+    status: Status,
 }
 
+#[derive(Debug, PartialEq)]
 enum Status {
     // TODO: add the missing variants
+    ToDo,
+    InProgress,
+    Done,
 }
 
 impl Ticket {
-    pub fn new(title: String, description: String, status: String) -> Ticket {
+    pub fn new(title: String, description: String, status: Status) -> Ticket {
         if title.is_empty() {
             panic!("Title cannot be empty");
         }
@@ -28,8 +32,9 @@ impl Ticket {
         if description.len() > 500 {
             panic!("Description cannot be longer than 500 bytes");
         }
-        if status != "To-Do" && status != "In Progress" && status != "Done" {
-            panic!("Only `To-Do`, `In Progress`, and `Done` statuses are allowed");
+
+        if !matches!(status, Status::ToDo | Status::InProgress | Status::Done) {
+            panic!("Invalid status");
         }
 
         Ticket {
@@ -47,7 +52,7 @@ impl Ticket {
         &self.description
     }
 
-    pub fn status(&self) -> &String {
+    pub fn status(&self) -> &Status {
         &self.status
     }
 }
@@ -77,16 +82,15 @@ mod tests {
     #[test]
     fn test_description_not_matching() {
         let title = valid_title();
-        let status = Status::ToDo;
         let ticket1 = Ticket {
             title: title.clone(),
             description: "description".to_string(),
-            status,
+            status: Status::ToDo
         };
         let ticket2 = Ticket {
             title: title.clone(),
             description: "description2".to_string(),
-            status,
+            status: Status::ToDo,
         };
         assert_ne!(ticket1, ticket2);
     }
@@ -94,16 +98,15 @@ mod tests {
     #[test]
     fn test_title_not_matching() {
         let description = valid_description();
-        let status = Status::InProgress;
         let ticket1 = Ticket {
             title: "title".to_string(),
             description: description.clone(),
-            status,
+            status: Status::InProgress,
         };
         let ticket2 = Ticket {
             title: "title2".to_string(),
             description: description.clone(),
-            status,
+            status: Status::InProgress,
         };
         assert_ne!(ticket1, ticket2);
     }
