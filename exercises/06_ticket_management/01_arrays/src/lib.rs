@@ -1,9 +1,18 @@
 // TODO: Flesh out the `WeekTemperatures` struct and its method implementations to pass the tests.
 
+#[derive(Debug)]
 pub struct WeekTemperatures {
     // TODO
+    temp: [WeekTemperature; 7],
 }
 
+#[derive(Debug, PartialEq, Copy, Clone)]
+pub struct WeekTemperature {
+    day: Option<Weekday>,
+    temperature: Option<i32>,
+}
+
+#[derive(Debug, PartialEq, Copy, Clone)]
 pub enum Weekday {
     Monday,
     Tuesday,
@@ -16,15 +25,57 @@ pub enum Weekday {
 
 impl WeekTemperatures {
     pub fn new() -> Self {
-        todo!()
+        WeekTemperatures {
+            temp: [
+                WeekTemperature {
+                    day: Some(Weekday::Monday),
+                    temperature: None,
+                },
+                WeekTemperature {
+                    day: Some(Weekday::Tuesday),
+                    temperature: None,
+                },
+                WeekTemperature {
+                    day: Some(Weekday::Wednesday),
+                    temperature: None,
+                },
+                WeekTemperature {
+                    day: Some(Weekday::Thursday),
+                    temperature: None,
+                },
+                WeekTemperature {
+                    day: Some(Weekday::Friday),
+                    temperature: None,
+                },
+                WeekTemperature {
+                    day: Some(Weekday::Saturday),
+                    temperature: None,
+                },
+                WeekTemperature {
+                    day: Some(Weekday::Sunday),
+                    temperature: None,
+                },
+            ],
+        }
     }
 
     pub fn get_temperature(&self, day: Weekday) -> Option<i32> {
-        todo!()
+        for week_temp in &self.temp {
+            println!("Checking day: {:?}", week_temp.day);
+            if week_temp.day == Some(day) {
+                return week_temp.temperature;
+            }
+        }
+        None
     }
 
     pub fn set_temperature(&mut self, day: Weekday, temperature: i32) {
-        todo!()
+        for week_temp in &mut self.temp {
+            if week_temp.day == Some(day) {
+                week_temp.temperature = Some(temperature);
+                return;
+            }
+        }
     }
 }
 

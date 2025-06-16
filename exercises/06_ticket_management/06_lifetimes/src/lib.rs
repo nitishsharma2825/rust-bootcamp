@@ -13,6 +13,15 @@ pub struct Ticket {
     pub status: Status,
 }
 
+impl<'a> IntoIterator for &'a TicketStore {
+    type Item = &'a Ticket;
+    type IntoIter = std::slice::Iter<'a, Ticket>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.tickets.iter()
+    }
+}
+
 #[derive(Clone, Debug, Copy, PartialEq)]
 pub enum Status {
     ToDo,
