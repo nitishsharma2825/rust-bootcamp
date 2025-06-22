@@ -11,7 +11,21 @@ use tokio::net::TcpListener;
 // - `tokio::net::TcpStream::split` to obtain a reader and a writer from the socket
 // - `tokio::io::copy` to copy data from the reader to the writer
 pub async fn echo(listener: TcpListener) -> Result<(), anyhow::Error> {
-    todo!()
+    loop {
+        // Accept a new incoming connection
+        let (socket, _) = listener.accept().await?;
+
+        // Split the socket into a reader and a writer
+        let (mut reader, mut writer) = socket.into_split();
+
+        // Spawn a new task to handle the connection
+        tokio::spawn(async move {
+            // Use tokio::io::copy to echo data from reader to writer
+            if let Err(e) = tokio::io::copy(&mut reader, &mut writer).await {
+                eprintln!("Error while echoing data: {}", e);
+            }
+        });
+    }
 }
 
 #[cfg(test)]

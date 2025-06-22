@@ -4,7 +4,54 @@ use tokio::net::TcpListener;
 //  Multiple connections (on the same listeners) should be processed concurrently.
 //  The received data should be echoed back to the client.
 pub async fn echoes(first: TcpListener, second: TcpListener) -> Result<(), anyhow::Error> {
-    todo!()
+    let first = std::sync::Arc::new(first);
+    let second = std::sync::Arc::new(second);
+
+    let first_listener = first.clone();
+    let second_listener = second.clone();
+
+    let first_task = tokio::spawn(async move {
+        loop {
+            let listener = first_listener.clone();
+            match listener.accept().await {
+                Ok((socket, _)) => {
+                    tokio::spawn(async move {
+                        let (mut reader, mut writer) = socket.into_split();
+                        if let Err(e) = tokio::io::copy(&mut reader, &mut writer).await {
+                            eprintln!("Error while echoing data: {}", e);
+                        }
+                    });
+                }
+                Err(e) => {
+                    eprintln!("Error accepting connection on first listener: {}", e);
+                }
+            }
+        }
+    });
+
+    let second_task = tokio::spawn(async move {
+        loop {
+            let listener = second_listener.clone();
+            match listener.accept().await {
+                Ok((socket, _)) => {
+                    tokio::spawn(async move {
+                        let (mut reader, mut writer) = socket.into_split();
+                        if let Err(e) = tokio::io::copy(&mut reader, &mut writer).await {
+                            eprintln!("Error while echoing data: {}", e);
+                        }
+                    });
+                }
+                Err(e) => {
+                    eprintln!("Error accepting connection on second listener: {}", e);
+                }
+            }
+        }
+    });
+
+    // Wait for both tasks to complete (which will be never, unless they panic)
+    let _ = tokio::try_join!(first_task, second_task);
+
+    Ok(())
 }
 
 #[cfg(test)]
